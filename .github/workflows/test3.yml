@@ -1,0 +1,39 @@
+name: Build the Beepy CLI
+on:
+  push:
+    paths-ignore:
+      - "README.md"
+  pull_request:
+    paths-ignore:
+      - "README.md"
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64, armv7]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Alpine (${{ matrix.arch }})
+        uses: jirutka/setup-alpine@v1
+        with:
+          arch: ${{ matrix.arch }}
+          packages: >
+            go
+            git
+            build-base
+      - name: Install libolm
+        run: sudo apt install libolm-dev
+        shell: alpine.sh --root {0}
+      - name: Build CLI
+        run: go build
+        shell: alpine.sh {0}
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Beepy CLI (Linux ${{ matrix.arch }})
+          path: beepycli
+          if-no-files-found: error
