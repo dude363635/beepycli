@@ -25,9 +25,9 @@ linux:
             go
             git
             build-base
+            libolm-dev
       - name: Install libolm
         run: sudo apt install libolm-dev
-        shell: alpine.sh --root {0}
       - name: Build CLI
         run: go build
         shell: alpine.sh {0}
